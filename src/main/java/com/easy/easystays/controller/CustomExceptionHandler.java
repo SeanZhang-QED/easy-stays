@@ -1,5 +1,6 @@
 package com.easy.easystays.controller;
 
+import com.easy.easystays.exception.GCSUploadException;
 import com.easy.easystays.exception.StaysNotExistException;
 import com.easy.easystays.exception.UserAlreadyExistException;
 import com.easy.easystays.exception.UserNotExistException;
@@ -25,5 +26,10 @@ public class CustomExceptionHandler {
     @ExceptionHandler(StaysNotExistException.class)
     public final ResponseEntity<String> handleStaysNotExistExceptions(Exception ex, WebRequest request) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GCSUploadException.class)
+    public final ResponseEntity<String> handleGCSUploadExceptions(Exception ex, WebRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
