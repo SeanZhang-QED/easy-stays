@@ -1,5 +1,6 @@
 package com.easy.easystays.controller;
 
+import com.easy.easystays.exception.StaysNotExistException;
 import com.easy.easystays.exception.UserAlreadyExistException;
 import com.easy.easystays.exception.UserNotExistException;
 import org.springframework.http.HttpStatus;
@@ -19,5 +20,10 @@ public class CustomExceptionHandler {
     @ExceptionHandler(UserNotExistException.class)
     public final ResponseEntity<String> handleUserNotExistExceptions(Exception ex, WebRequest request) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(StaysNotExistException.class)
+    public final ResponseEntity<String> handleStaysNotExistExceptions(Exception ex, WebRequest request) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
