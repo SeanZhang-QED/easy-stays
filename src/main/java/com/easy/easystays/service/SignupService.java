@@ -27,7 +27,7 @@ public class SignupService {
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void add(User user, UserRole userRole) throws UserAlreadyExistException{
-        if (userRepository.existsById(user.getUsername())) {
+        if (userRepository.existsUserByUsername(user.getUsername())) {
             throw new UserAlreadyExistException("User already exists");
         }
 

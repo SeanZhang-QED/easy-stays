@@ -16,7 +16,7 @@ public class Stay implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private int id;
     private String name;
     private String description;
     private String address;
@@ -24,7 +24,7 @@ public class Stay implements Serializable {
     private int guestNumber;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "username")
     private User host;
 
     @OneToMany(mappedBy = "stay", cascade = CascadeType.ALL, fetch=FetchType.EAGER)
@@ -45,28 +45,60 @@ public class Stay implements Serializable {
         this.images = builder.images;
     }
 
-    public Long getId() {
+    public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getAddress() {
         return address;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public int getGuestNumber() {
         return guestNumber;
     }
 
+    public void setGuestNumber(int guestNumber) {
+        this.guestNumber = guestNumber;
+    }
+
     public User getHost() {
         return host;
+    }
+
+    public void setHost(User host) {
+        this.host = host;
+    }
+
+    public List<StayImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<StayImage> images) {
+        this.images = images;
     }
 
     public List<StayReservedDate> getReservedDates() {
@@ -75,15 +107,6 @@ public class Stay implements Serializable {
 
     public void setReservedDates(List<StayReservedDate> reservedDates) {
         this.reservedDates = reservedDates;
-    }
-
-    public List<StayImage> getImages() {
-        return images;
-    }
-
-    public Stay setImages(List<StayImage> images) {
-        this.images = images;
-        return this;
     }
 
     public static class Builder {

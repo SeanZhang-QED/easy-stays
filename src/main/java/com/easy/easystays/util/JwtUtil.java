@@ -18,7 +18,7 @@ public class JwtUtil {
     public String generateToken(String subject) {
         return Jwts.builder()
                 .setClaims(new HashMap<>()) // stores optional info in a map
-                .setSubject(subject)
+                .setSubject(subject) // add username into subject
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .signWith(SignatureAlgorithm.HS256, privateKey)

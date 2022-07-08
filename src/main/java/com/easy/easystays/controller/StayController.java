@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -18,39 +19,39 @@ public class StayController {
         this.stayService = stayService;
     }
 
+
     @PostMapping("/stays")
     public void addStay(
             @RequestParam("name") String name,
             @RequestParam("address") String address,
             @RequestParam("description") String description,
-            @RequestParam("host") String host,
             @RequestParam("guest_number") int guestNumber,
-            @RequestParam("images") MultipartFile[] images) {
+            @RequestParam("images") MultipartFile[] images,
+            Principal principal) {
 
         Stay stay = new Stay.Builder().setName(name)
                 .setAddress(address)
                 .setDescription(description)
                 .setGuestNumber(guestNumber)
-                .setHost(new User.Builder().setUsername(host).build())
                 .build();
-        stayService.add(stay, images);
+        stayService.add(stay, images, principal.getName());
     }
 
 
-    @DeleteMapping(value = "/stays")
-    public void deleteStay(@RequestParam(name = "stay_id") Long stayId,
-                           @RequestParam(name = "host") String hostName) {
-        this.stayService.delete(stayId, hostName);
+    @DeleteMapping(value = "/stays/{stayId}")
+    public void deleteStay(@PathVariable int stayId,
+                           Principal principal) {
+        this.stayService.delete(stayId, principal.getName());
     }
 
     @GetMapping(value = "/stays")
-    public List<Stay> listStays(@RequestParam(name = "host") String hostName) {
-        return this.stayService.listByHost(hostName);
+    public List<Stay> listStays(Principal principal) {
+        return this.stayService.listByHost(principal.getName());
     }
 
-    @GetMapping(value = "/stays/id")
-    public Stay getStay(@RequestParam(name = "stay_id") Long stayId,
-                        @RequestParam(name = "host") String hostName) {
-        return this.stayService.findByIdAndHost(stayId, hostName);
+    @GetMapping(value = "/stays/{stayId}")
+    public Stay getStay(@PathVariable int stayId,
+                        Principal principal) {
+        return this.stayService.findByIdAndHost(stayId, principal.getName());
     }
 }

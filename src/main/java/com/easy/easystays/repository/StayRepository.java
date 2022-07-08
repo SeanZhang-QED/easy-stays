@@ -8,11 +8,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface StayRepository extends JpaRepository<Stay, Long> {
+public interface StayRepository extends JpaRepository<Stay, Integer> {
     // https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation
     // keywords: findBy (field name) And
 
     List<Stay> findByHost(User host); // select * where stay.host = host
 
-    Stay findByIdAndHost(Long id, User host); // select * where stay.id = id and stay.host = host
+    Stay findByIdAndHost(int id, User host); // select * where stay.id = id and stay.host = host
 }
