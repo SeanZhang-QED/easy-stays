@@ -2,9 +2,11 @@ package com.easy.easystays.service;
 
 import com.easy.easystays.exception.StaysNotExistException;
 import com.easy.easystays.exception.UserNotExistException;
+import com.easy.easystays.model.Location;
 import com.easy.easystays.model.Stay;
 import com.easy.easystays.model.StayImage;
 import com.easy.easystays.model.User;
+import com.easy.easystays.repository.LocationRepository;
 import com.easy.easystays.repository.StayRepository;
 import com.easy.easystays.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +27,26 @@ public class StayService {
     private StayRepository stayRepository;
     private ImageStorageService imageStorageService;
     private UserRepository userRepository;
+    private LocationRepository locationRepository;
+    private GeoCodingService geoCodingService;
 
     @Autowired
-    public StayService(StayRepository stayRepository, ImageStorageService imageStorageService, UserRepository userRepository) {
+    public StayService(StayRepository stayRepository,
+                       ImageStorageService imageStorageService,
+                       UserRepository userRepository,
+                       LocationRepository locationRepository,
+                       GeoCodingService geoCodingService) {
         this.stayRepository = stayRepository;
         this.imageStorageService = imageStorageService;
         this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
+        this.geoCodingService = geoCodingService;
     }
 
     // 1. upload
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void add(Stay stay, MultipartFile[] images, String host) throws UserNotExistException {
+        // Step 1: save to GCS, and get url
         List<String> mediaLinks = Arrays
                                         .stream(images)
                                         .parallel()
@@ -52,7 +63,11 @@ public class StayService {
         } else {
             throw new UserNotExistException("The host trying to upload not exits");
         }
+        // Step 2: save to MySQL
         this.stayRepository.save(stay);
+        // Step 3: get coordinate from GEO encoding, save to ES
+        Location location = geoCodingService.getLocation(stay.getId(), stay.getAddress());
+        locationRepository.save(location);
     }
 
     // 2. delete by id

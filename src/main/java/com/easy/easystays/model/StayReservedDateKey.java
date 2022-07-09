@@ -1,5 +1,6 @@
 package com.easy.easystays.model;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -9,14 +10,15 @@ import java.util.Objects;
 public class StayReservedDateKey implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Long stay_id;
+    @Column(name = "stay_id")
+    private int stayId;
     private LocalDate date;
 
     public StayReservedDateKey() {
     }
 
-    public StayReservedDateKey(Long stay_id, LocalDate date) {
-        this.stay_id = stay_id;
+    public StayReservedDateKey(int stay_id, LocalDate date) {
+        this.stayId = stay_id;
         this.date = date;
     }
 
@@ -26,20 +28,20 @@ public class StayReservedDateKey implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StayReservedDateKey that = (StayReservedDateKey) o;
-        return Objects.equals(stay_id, that.stay_id) && Objects.equals(date, that.date);
+        return Objects.equals(stayId, that.stayId) && Objects.equals(date, that.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stay_id, date);
+        return Objects.hash(stayId, date);
     }
 
-    public Long getStay_id() {
-        return stay_id;
+    public int getStay_id() {
+        return stayId;
     }
 
-    public void setStay_id(Long stay_id) {
-        this.stay_id = stay_id;
+    public void setStay_id(int stay_id) {
+        this.stayId = stay_id;
     }
 
     public LocalDate getDate() {
