@@ -1,7 +1,9 @@
 package com.easy.easystays.controller;
 
+import com.easy.easystays.model.Reservation;
 import com.easy.easystays.model.Stay;
 import com.easy.easystays.model.User;
+import com.easy.easystays.service.ReservationService;
 import com.easy.easystays.service.StayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +15,12 @@ import java.util.List;
 @RestController
 public class StayController {
     private StayService stayService;
+    private ReservationService reservationService;
 
     @Autowired
-    public StayController(StayService stayService) {
+    public StayController(StayService stayService, ReservationService reservationService) {
         this.stayService = stayService;
+        this.reservationService = reservationService;
     }
 
 
@@ -53,5 +57,10 @@ public class StayController {
     public Stay getStay(@PathVariable int stayId,
                         Principal principal) {
         return this.stayService.findByIdAndHost(stayId, principal.getName());
+    }
+
+    @GetMapping(value = "/stays/reservations/{stayId}")
+    public List<Reservation> listReservations(@PathVariable int stayId, Principal principal) {
+        return reservationService.listByStay(stayId);
     }
 }

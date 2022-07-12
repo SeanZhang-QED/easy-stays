@@ -1,14 +1,10 @@
 package com.easy.easystays.service;
 
+import com.easy.easystays.exception.StayDeleteException;
 import com.easy.easystays.exception.StaysNotExistException;
 import com.easy.easystays.exception.UserNotExistException;
-import com.easy.easystays.model.Location;
-import com.easy.easystays.model.Stay;
-import com.easy.easystays.model.StayImage;
-import com.easy.easystays.model.User;
-import com.easy.easystays.repository.LocationRepository;
-import com.easy.easystays.repository.StayRepository;
-import com.easy.easystays.repository.UserRepository;
+import com.easy.easystays.model.*;
+import com.easy.easystays.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -16,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Table;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,18 +26,24 @@ public class StayService {
     private UserRepository userRepository;
     private LocationRepository locationRepository;
     private GeoCodingService geoCodingService;
+    private ReservationRepository reservationRepository;
+    private StayReservationDateRepository stayReservationDateRepository;
 
     @Autowired
     public StayService(StayRepository stayRepository,
                        ImageStorageService imageStorageService,
                        UserRepository userRepository,
                        LocationRepository locationRepository,
-                       GeoCodingService geoCodingService) {
+                       GeoCodingService geoCodingService,
+                       ReservationRepository reservationRepository,
+                       StayReservationDateRepository stayReservationDateRepository) {
         this.stayRepository = stayRepository;
         this.imageStorageService = imageStorageService;
         this.userRepository = userRepository;
         this.locationRepository = locationRepository;
         this.geoCodingService = geoCodingService;
+        this.reservationRepository = reservationRepository;
+        this.stayReservationDateRepository = stayReservationDateRepository;
     }
 
     // 1. upload
@@ -61,7 +64,7 @@ public class StayService {
         if (u != null) {
             stay.setHost(u);
         } else {
-            throw new UserNotExistException("The host trying to upload not exits");
+            throw new UserNotExistException("The host trying to upload not exits.");
         }
         // Step 2: save to MySQL
         this.stayRepository.save(stay);
@@ -72,10 +75,21 @@ public class StayService {
 
     // 2. delete by id
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void delete(int stayId, String username) throws StaysNotExistException{
+    public void delete(int stayId, String username) throws StaysNotExistException, StayDeleteException{
         Stay stay = findByIdAndHost(stayId, username);
         if(stay == null) {
-            throw new StaysNotExistException("Stay not exists");
+            throw new StaysNotExistException("Stay not exists.");
+        }
+        // find whether there are any reservation left, so that we cannot delete stay before the guest checkout
+        List<Reservation> reservations = reservationRepository.findByStayAndCheckoutDateAfter(stay, LocalDate.now());
+        if(!reservations.isEmpty()) {
+            throw new StayDeleteException("Cannot delete stay with reservations.");
+        }
+
+        // delete the related data in stay reservation date table
+        List<StayReservedDate> stayReservedDates = stayReservationDateRepository.findByStay(stay);
+        for(StayReservedDate date : stayReservedDates) {
+            stayReservationDateRepository.deleteById(date.getId());
         }
         this.stayRepository.delete(stay);
     }

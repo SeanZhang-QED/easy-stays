@@ -37,6 +37,7 @@ public class Stay implements Serializable {
     public Stay() {}
 
     private Stay(Builder builder) {
+        this.id = builder.id;
         this.name = builder.name;
         this.description = builder.description;
         this.address = builder.address;
@@ -110,6 +111,8 @@ public class Stay implements Serializable {
     }
 
     public static class Builder {
+        @JsonProperty("id")
+        private int id;
 
         @JsonProperty("name")
         private String name;
@@ -128,6 +131,11 @@ public class Stay implements Serializable {
 
         @JsonProperty("images")
         private List<StayImage> images;
+
+        public Builder setId(int id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder setName(String name) {
             this.name = name;

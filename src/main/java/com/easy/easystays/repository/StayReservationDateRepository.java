@@ -1,5 +1,6 @@
 package com.easy.easystays.repository;
 
+import com.easy.easystays.model.Stay;
 import com.easy.easystays.model.StayReservedDate;
 import com.easy.easystays.model.StayReservedDateKey;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface StayReservationDateRepository extends JpaRepository<StayReserve
     // key{ int id, LocalDate date }
     @Query(value = "SELECT srd.id.stayId FROM StayReservedDate srd WHERE srd.id.stayId IN ?1 AND srd.id.date BETWEEN ?2 AND ?3 GROUP BY srd.id.stayId")
     Set<Integer> findByIdInAndDateBetween(List<Integer> stayIds, LocalDate startDate, LocalDate endDate);
+
+    List<StayReservedDate> findByStay(Stay stay); // for stay delete
 }
